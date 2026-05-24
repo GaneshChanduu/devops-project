@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Advanced Weather App</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body class="{{ 'day' if weather and weather.is_day else 'night' }}">
+    <div class="container">
+      <h1>🌤 Advanced Weather App</h1>
+
+      <!-- City Search -->
+      <form method="POST">
+        <input type="text" name="city" placeholder="Search city..." />
+        <button type="submit">Search</button>
+      </form>
+
+      <!-- Location Button -->
+      <button onclick="getLocation()">📍 Use My Location</button>
+
+      <!-- Hidden form -->
+      <form id="locationForm" method="POST">
+        <input type="hidden" name="lat" id="lat" />
+        <input type="hidden" name="lon" id="lon" />
+      </form>
+
+      {% if error %}
+      <p class="error">{{ error }}</p>
+      {% endif %} {% if weather %}
+      <div class="weather-box">
+        <h2>{{ weather.city }}</h2>
+        <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" />
+        <p class="temp">{{ weather.temp }} °C</p>
+        <p>{{ weather.desc }}</p>
+
+        <p>🌡 Feels like: {{ weather.feels }} °C</p>
+        <p>💧 Humidity: {{ weather.humidity }}%</p>
+        <p>💨 Wind: {{ weather.wind }} m/s</p>
+        <p>📊 Pressure: {{ weather.pressure }} hPa</p>
+      </div>
+      {% endif %} {% if forecast %}
+      <h2>📅 Forecast</h2>
+      <div class="forecast-container">
+        {% for item in forecast %}
+        <div class="forecast-card">
+          <p>{{ item.time }}</p>
+          <img src="http://openweathermap.org/img/wn/{{ item.icon }}@2x.png" />
+          <p>{{ item.temp }} °C</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      function getLocation() {
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            document.getElementById("lat").value = position.coords.latitude;
+            document.getElementById("lon").value = position.coords.longitude;
+            document.getElementById("locationForm").submit();
+          },
+          function (error) {
+            alert("Location access denied. Please allow location.");
+          },
+        );
+      }
+    </script>
+  </body>
+</html>
