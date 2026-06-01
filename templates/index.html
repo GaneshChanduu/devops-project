@@ -1,52 +1,100 @@
 <!doctype html>
 <html>
   <head>
-    <title>Advanced Weather App</title>
+    <title>FreeVibe Music</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <h1>🌤 Advanced Weather App</h1>
-
-    <form method="POST">
-      <input type="text" name="city" placeholder="Enter city" />
-      <button type="submit">Search</button>
-    </form>
-
-    <button onclick="getLocation()">📍 Use My Location</button>
-
-    <form id="locationForm" method="POST">
-      <input type="hidden" name="lat" id="lat" />
-      <input type="hidden" name="lon" id="lon" />
-    </form>
-
-    {% if error %}
-    <p style="color: red">{{ error }}</p>
-    {% endif %} {% if weather %}
-    <h2>{{ weather.city }}</h2>
-    <p>{{ weather.temp }}°C</p>
-    <p>{{ weather.desc }}</p>
-    <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" />
-    {% endif %} {% if forecast %}
-    <h3>Forecast</h3>
-    <div>
-      {% for item in forecast %}
-      <div>
-        <p>{{ item.time }}</p>
-        <p>{{ item.temp }}°C</p>
-        <img src="http://openweathermap.org/img/wn/{{ item.icon }}@2x.png" />
+    <div class="container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h2>🎧 FreeVibe</h2>
+        <ul>
+          <li onclick="loadSongs()">🏠 Home</li>
+          <li onclick="showFavorites()">❤️ Favorites</li>
+        </ul>
       </div>
-      {% endfor %}
+
+      <!-- Main Content -->
+      <div class="main">
+        <div class="topbar">
+          <input type="text" id="search" placeholder="Search music..." />
+          <button onclick="searchSongs()">Search</button>
+        </div>
+
+        <div id="songs" class="songs"></div>
+      </div>
     </div>
-    {% endif %}
+
+    <!-- Bottom Player -->
+    <div class="player" id="player">
+      <img id="cover" src="" />
+      <div>
+        <h4 id="title">No song</h4>
+        <p id="artist"></p>
+      </div>
+      <audio id="audio" controls></audio>
+    </div>
 
     <script>
-      function getLocation() {
-        navigator.geolocation.getCurrentPosition(function (position) {
-          document.getElementById("lat").value = position.coords.latitude;
-          document.getElementById("lon").value = position.coords.longitude;
-          document.getElementById("locationForm").submit();
-        });
+      let allSongs = [];
+      let favorites = JSON.parse(localStorage.getItem("fav")) || [];
+
+      function loadSongs() {
+        fetch("/songs")
+          .then((res) => res.json())
+          .then((data) => {
+            allSongs = data;
+            displaySongs(data);
+          });
       }
+
+      function displaySongs(songs) {
+        let html = "";
+        songs.forEach((song) => {
+          html += `
+        <div class="card">
+            <img src="${song.image}">
+            <h3>${song.name}</h3>
+            <p>${song.artist}</p>
+
+            <button onclick='playSong(${JSON.stringify(song)})'>▶ Play</button>
+            <button onclick='addFav(${JSON.stringify(song)})'>❤️</button>
+        </div>
+        `;
+        });
+
+        document.getElementById("songs").innerHTML = html;
+      }
+
+      function playSong(song) {
+        document.getElementById("audio").src = song.audio;
+        document.getElementById("cover").src = song.image;
+        document.getElementById("title").innerText = song.name;
+        document.getElementById("artist").innerText = song.artist;
+      }
+
+      function searchSongs() {
+        let text = document.getElementById("search").value.toLowerCase();
+        let filtered = allSongs.filter(
+          (s) =>
+            s.name.toLowerCase().includes(text) ||
+            s.artist.toLowerCase().includes(text),
+        );
+        displaySongs(filtered);
+      }
+
+      function addFav(song) {
+        favorites.push(song);
+        localStorage.setItem("fav", JSON.stringify(favorites));
+        alert("Added to favorites");
+      }
+
+      function showFavorites() {
+        displaySongs(favorites);
+      }
+
+      loadSongs();
     </script>
   </body>
 </html>

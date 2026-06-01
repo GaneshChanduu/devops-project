@@ -1,64 +1,42 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, jsonify, request
+from flask_cors import CORS
 import requests
-import os
 
 app = Flask(__name__)
 
-API_KEY = os.getenv("API_KEY")
+# ✅ ENABLE CORS (VERY IMPORTANT for React)
+CORS(app)
 
-@app.route("/", methods=["GET", "POST"])
+# 🔑 Your Jamendo Client ID
+CLIENT_ID = "57c928e0"
+
+
+@app.route("/")
 def home():
-    weather = None
-    forecast = []
-    error = None
+    return render_template("index.html")
 
-    if request.method == "POST":
-        city = request.form.get("city")
-        lat = request.form.get("lat")
-        lon = request.form.get("lon")
 
-        if city:
-            current_url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-            forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=metric"
+@app.route("/songs")
+def get_songs():
+    query = request.args.get("q", "")
 
-        elif lat and lon:
-            current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-            forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+    url = f"https://api.jamendo.com/v3.0/tracks/?client_id={CLIENT_ID}&format=json&limit=12&namesearch={query}"
 
-        else:
-            return render_template("index.html")
+    response = requests.get(url)
+    data = response.json()
 
-        try:
-            current_res = requests.get(current_url).json()
+    songs = []
 
-            if current_res.get("cod") != 200:
-                error = "Location not found!"
-            else:
-                weather = {
-                    "city": current_res["name"],
-                    "temp": current_res["main"]["temp"],
-                    "feels": current_res["main"]["feels_like"],
-                    "humidity": current_res["main"]["humidity"],
-                    "wind": current_res["wind"]["speed"],
-                    "pressure": current_res["main"]["pressure"],
-                    "desc": current_res["weather"][0]["description"],
-                    "icon": current_res["weather"][0]["icon"]
-                }
+    for track in data["results"]:
+        songs.append({
+            "name": track.get("name"),
+            "artist": track.get("artist_name"),
+            "audio": track.get("audio"),
+            "image": track.get("image")
+        })
 
-                forecast_res = requests.get(forecast_url).json()
-
-                for item in forecast_res["list"][:8]:
-                    forecast.append({
-                        "time": item["dt_txt"],
-                        "temp": item["main"]["temp"],
-                        "icon": item["weather"][0]["icon"]
-                    })
-
-        except Exception as e:
-            error = "Something went wrong!"
-
-    return render_template("index.html", weather=weather, forecast=forecast, error=error)
+    return jsonify(songs)
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run()

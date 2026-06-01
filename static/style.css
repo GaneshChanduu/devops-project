@@ -1,20 +1,174 @@
 body {
-  background: #1e2a38;
-  color: white;
-  text-align: center;
+  margin: 0;
   font-family: Arial;
+  background: #121212;
+  color: white;
 }
 
-input {
-  padding: 10px;
-  margin: 10px;
+/* Layout */
+.container {
+  display: flex;
 }
 
-button {
+/* Sidebar */
+.sidebar {
+  width: 200px;
+  background: #000;
+  padding: 20px;
+  height: 100vh;
+}
+
+.sidebar h2 {
+  color: #1db954;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
   padding: 10px;
   cursor: pointer;
 }
 
-div {
-  margin: 10px;
+.sidebar li:hover {
+  background: #222;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  gap: 10px;
+}
+
+.topbar input {
+  flex: 1;
+  padding: 10px;
+}
+
+.topbar button {
+  background: #1db954;
+  border: none;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Songs Grid */
+.songs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Card */
+.card {
+  background: #181818;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.card button {
+  margin: 5px;
+  padding: 8px;
+  border: none;
+  background: #1db954;
+  color: white;
+  cursor: pointer;
+}
+
+/* Player */
+.player {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #000;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player img {
+  width: 50px;
+}
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  /* Sidebar becomes top bar */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .sidebar ul {
+    display: flex;
+    gap: 20px;
+  }
+
+  .sidebar li {
+    padding: 5px;
+  }
+
+  /* Main spacing */
+  .main {
+    padding: 10px;
+  }
+
+  /* Search bar full width */
+  .topbar {
+    flex-direction: column;
+  }
+
+  .topbar input {
+    width: 100%;
+  }
+
+  .topbar button {
+    width: 100%;
+  }
+
+  /* Songs grid → single column */
+  .songs {
+    grid-template-columns: 1fr;
+  }
+
+  /* Card bigger touch */
+  .card {
+    padding: 15px;
+  }
+
+  /* Player smaller */
+  .player {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .player img {
+    width: 40px;
+  }
+
+  audio {
+    width: 100%;
+  }
 }
