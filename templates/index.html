@@ -2,71 +2,50 @@
 <html>
   <head>
     <title>Advanced Weather App</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
+    <link rel="stylesheet" href="/static/style.css" />
   </head>
+  <body>
+    <h1>🌤 Advanced Weather App</h1>
 
-  <body class="{{ 'day' if weather and weather.is_day else 'night' }}">
-    <div class="container">
-      <h1>🌤 Advanced Weather App</h1>
+    <form method="POST">
+      <input type="text" name="city" placeholder="Enter city" />
+      <button type="submit">Search</button>
+    </form>
 
-      <!-- City Search -->
-      <form method="POST">
-        <input type="text" name="city" placeholder="Search city..." />
-        <button type="submit">Search</button>
-      </form>
+    <button onclick="getLocation()">📍 Use My Location</button>
 
-      <!-- Location Button -->
-      <button onclick="getLocation()">📍 Use My Location</button>
+    <form id="locationForm" method="POST">
+      <input type="hidden" name="lat" id="lat" />
+      <input type="hidden" name="lon" id="lon" />
+    </form>
 
-      <!-- Hidden form -->
-      <form id="locationForm" method="POST">
-        <input type="hidden" name="lat" id="lat" />
-        <input type="hidden" name="lon" id="lon" />
-      </form>
-
-      {% if error %}
-      <p class="error">{{ error }}</p>
-      {% endif %} {% if weather %}
-      <div class="weather-box">
-        <h2>{{ weather.city }}</h2>
-        <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" />
-        <p class="temp">{{ weather.temp }} °C</p>
-        <p>{{ weather.desc }}</p>
-
-        <p>🌡 Feels like: {{ weather.feels }} °C</p>
-        <p>💧 Humidity: {{ weather.humidity }}%</p>
-        <p>💨 Wind: {{ weather.wind }} m/s</p>
-        <p>📊 Pressure: {{ weather.pressure }} hPa</p>
+    {% if error %}
+    <p style="color: red">{{ error }}</p>
+    {% endif %} {% if weather %}
+    <h2>{{ weather.city }}</h2>
+    <p>{{ weather.temp }}°C</p>
+    <p>{{ weather.desc }}</p>
+    <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" />
+    {% endif %} {% if forecast %}
+    <h3>Forecast</h3>
+    <div>
+      {% for item in forecast %}
+      <div>
+        <p>{{ item.time }}</p>
+        <p>{{ item.temp }}°C</p>
+        <img src="http://openweathermap.org/img/wn/{{ item.icon }}@2x.png" />
       </div>
-      {% endif %} {% if forecast %}
-      <h2>📅 Forecast</h2>
-      <div class="forecast-container">
-        {% for item in forecast %}
-        <div class="forecast-card">
-          <p>{{ item.time }}</p>
-          <img src="http://openweathermap.org/img/wn/{{ item.icon }}@2x.png" />
-          <p>{{ item.temp }} °C</p>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
+      {% endfor %}
     </div>
+    {% endif %}
 
     <script>
       function getLocation() {
-        navigator.geolocation.getCurrentPosition(
-          function (position) {
-            document.getElementById("lat").value = position.coords.latitude;
-            document.getElementById("lon").value = position.coords.longitude;
-            document.getElementById("locationForm").submit();
-          },
-          function (error) {
-            alert("Location access denied. Please allow location.");
-          },
-        );
+        navigator.geolocation.getCurrentPosition(function (position) {
+          document.getElementById("lat").value = position.coords.latitude;
+          document.getElementById("lon").value = position.coords.longitude;
+          document.getElementById("locationForm").submit();
+        });
       }
     </script>
   </body>
